@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from textwrap import dedent
 from typing import Optional
 
 import click
@@ -214,3 +213,28 @@ def prepare_function(day: int, year: int, force: bool):
     r.raise_for_status()
     puzzle_file.write_text(r.text)
     print(f"Day {day} prepared successfully.")
+
+
+@main.command(
+    name="testall",
+    help="Test all day's solution",
+)
+def testall_function():
+    """
+    Test all day's solution
+    """
+    # Discover the solution
+    solution = discover_solution()
+    if not solution:
+        print("No solutions found.")
+        exit(0)
+
+    any_failure = False
+    for day, sel_sol in solution.items():
+        print(f"+ Testing day {day}...")
+        res = sel_sol.test()
+        if not all(res):
+            any_failure = True
+    if any_failure:
+        exit(1)
+    exit(0)
