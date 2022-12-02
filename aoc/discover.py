@@ -52,8 +52,8 @@ class Solution:
             return result
         return None
 
-    def test(self, run_a: bool = True, run_b: bool = True) -> tuple[bool, bool]:
-        passed = [False, False]
+    def test(self, run_a: bool = True, run_b: bool = True) -> tuple[Optional[bool], Optional[bool]]:
+        passed: list[Optional[bool]] = [None, None]
         if self.test_a and self.part_a and run_a:
             if not self.test_a.expect:
                 print("- Part A: No expected result, skipping")
@@ -61,6 +61,7 @@ class Solution:
                 res = self.part_a(self.test_a.example)
                 if res != self.test_a.expect:
                     print(f"- Part A: Expected {self.test_a.expect}, got {res}")
+                    passed[0] = False
                 else:
                     print("+ Part A: Test passed")
                     passed[0] = True
@@ -71,6 +72,7 @@ class Solution:
                 res = self.part_b(self.test_b.example)
                 if res != self.test_b.expect:
                     print(f"- Part B: Expected {self.test_b.expect}, got {res}")
+                    passed[1] = False
                 else:
                     print("+ Part B: Test passed")
                     passed[1] = True

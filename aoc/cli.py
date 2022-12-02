@@ -67,7 +67,7 @@ def run_function(day: Optional[str] = None):
         print("++ Available solutions:")
         if not solution:
             print("No solutions found.")
-            return 0
+            exit(0)
         for day_str, sol in solution.items():
             day_i = int(day_str)
             print(f"- {day_i:02d}", end="")
@@ -78,31 +78,31 @@ def run_function(day: Optional[str] = None):
             print()
         print("\nJust do: `aoc run 01` to run all solutions for day 1.")
         print("Or: `aoc run 01.a` to run only part a for day 1 as an example.")
-        return 0
+        exit(0)
 
     split_data = day.split(".", 1)
     if len(split_data) == 2:
         day_sel, part_sel = split_data
         if part_sel.lower() not in ["a", "b"]:
             print("Invalid part selected.")
-            return 1
+            exit(1)
 
         try:
             day_ii = int(day_sel)
         except ValueError:
             print("Invalid day selected (must be an integer).")
-            return 1
+            exit(1)
     else:
         try:
             day_ii = int(split_data[0])
         except ValueError:
             print("Invalid day selected (must be an integer).")
-            return 1
+            exit(1)
 
         part_sel = None
     if str(day_ii) not in solution:
         print("Day not found.")
-        return 1
+        exit(1)
 
     sel_sol = solution[str(day_ii)]
     if part_sel is None:
@@ -128,7 +128,7 @@ def test_function(day: Optional[str] = None):
         print("++ Available solutions:")
         if not solution:
             print("No solutions found.")
-            return 0
+            exit(0)
         for day_str, sol in solution.items():
             day_i = int(day_str)
             print(f"- {day_i:02d}", end="")
@@ -139,39 +139,46 @@ def test_function(day: Optional[str] = None):
             print()
         print("\nJust do: `aoc test 01` to test all solutions for day 1.")
         print("Or: `aoc test 01.a` to test only part a for day 1 as an example.")
-        return 0
+        exit(0)
 
     split_data = day.split(".", 1)
     if len(split_data) == 2:
         day_sel, part_sel = split_data
         if part_sel.lower() not in ["a", "b"]:
             print("Invalid part selected.")
-            return 1
+            exit(1)
 
         try:
             day_ii = int(day_sel)
         except ValueError:
             print("Invalid day selected (must be an integer).")
-            return 1
+            exit(1)
     else:
         try:
             day_ii = int(split_data[0])
         except ValueError:
             print("Invalid day selected (must be an integer).")
-            return 1
+            exit(1)
 
         part_sel = None
     if str(day_ii) not in solution:
         print("Day not found.")
-        return 1
+        exit(1)
 
     sel_sol = solution[str(day_ii)]
     if part_sel is None:
-        sel_sol.test()
+        res = sel_sol.test()
+        if not all(res):
+            exit(1)
     elif part_sel == "a":
-        sel_sol.test(run_b=False)
+        res, _ = sel_sol.test(run_b=False)
+        if not res:
+            exit(1)
     elif part_sel == "b":
-        sel_sol.test(run_a=False)
+        _, res = sel_sol.test(run_a=False)
+        if not res:
+            exit(1)
+    exit(0)
 
 
 @main.command(
@@ -188,13 +195,13 @@ def prepare_function(day: int, year: int, force: bool):
     session_env = os.environ.get("AOC_SESSION")
     if session_env is None:
         print("AOC_SESSION environment variable is not set.")
-        return 1
+        exit(1)
 
     print(f"+ Preparing day {day}...")
     days_folder = ROOT_DIR / "days" / f"day{day:02d}"
     if days_folder.exists() and not force:
         print(f"Day {day} already exists. Use --force to overwrite.")
-        return 1
+        exit(1)
 
     days_folder.mkdir(parents=True, exist_ok=True)
     solution_file = days_folder / "solution.py"
