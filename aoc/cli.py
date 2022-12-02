@@ -1,12 +1,13 @@
 import os
 from pathlib import Path
-from typing import Optional
+from typing import NoReturn, Optional
 
 import click
 import requests
 from dotenv import load_dotenv
 
-from .discover import discover_solution
+from .discover import Solution, discover_solution
+from .scrape import get_day_page
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 ROOT_DIR = Path(__file__).absolute().parent.parent
@@ -33,6 +34,24 @@ if __name__ == "__main__":
     print(part_a(puzzle_input))
     print(part_b(puzzle_input))
 """
+
+
+def list_and_exit(solutions: dict[str, Solution]) -> NoReturn:
+    print("++ Available solutions:")
+    if not solutions:
+        print("No solutions found.")
+        exit(0)
+    for day_str, sol in solutions.items():
+        day_i = int(day_str)
+        print(f"- {day_i:02d}", end="")
+        if sol.part_a:
+            print(".a", end="")
+        if sol.part_b:
+            print(f", {day_i:02d}.b", end="")
+        print()
+    print("\nJust do: `aoc run 01` to run all solutions for day 1.")
+    print("Or: `aoc run 01.a` to run only part a for day 1 as an example.")
+    exit(0)
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
@@ -64,21 +83,7 @@ def run_function(day: Optional[str] = None, puzzle_path: Optional[Path] = None):
     # Discover the solution
     solution = discover_solution()
     if not day:
-        print("++ Available solutions:")
-        if not solution:
-            print("No solutions found.")
-            exit(0)
-        for day_str, sol in solution.items():
-            day_i = int(day_str)
-            print(f"- {day_i:02d}", end="")
-            if sol.part_a:
-                print(".a", end="")
-            if sol.part_b:
-                print(f", {day_i:02d}.b", end="")
-            print()
-        print("\nJust do: `aoc run 01` to run all solutions for day 1.")
-        print("Or: `aoc run 01.a` to run only part a for day 1 as an example.")
-        exit(0)
+        list_and_exit(solution)
 
     split_data = day.split(".", 1)
     if len(split_data) == 2:
@@ -129,21 +134,7 @@ def test_function(day: Optional[str] = None):
     # Discover the solution
     solution = discover_solution()
     if not day:
-        print("++ Available solutions:")
-        if not solution:
-            print("No solutions found.")
-            exit(0)
-        for day_str, sol in solution.items():
-            day_i = int(day_str)
-            print(f"- {day_i:02d}", end="")
-            if sol.part_a:
-                print(".a", end="")
-            if sol.part_b:
-                print(f", {day_i:02d}.b", end="")
-            print()
-        print("\nJust do: `aoc test 01` to test all solutions for day 1.")
-        print("Or: `aoc test 01.a` to test only part a for day 1 as an example.")
-        exit(0)
+        list_and_exit(solution)
 
     split_data = day.split(".", 1)
     if len(split_data) == 2:
@@ -212,12 +203,33 @@ def prepare_function(day: int, year: int, force: bool):
     if not solution_file.exists():
         solution_file.write_text(PREPARE_TEXT)
 
+    print("+ Getting puzzle information...")
+    examples, expects, txt_day = get_day_page(day, year, session_env)
+    if txt_day is None:
+        print("Day information not found.")
+        exit(1)
     print(f"+ Downloading puzzle data for day {day}...")
     r = requests.get(f"https://adventofcode.com/{year}/day/{day}/input", cookies={"session": session_env})
     puzzle_file = days_folder / "input.txt"
     r.raise_for_status()
     puzzle_file.write_text(r.text)
+    if examples is not None:
+        print("+ Writing examples data...")
+        example_file = days_folder / "example.txt"
+        example_file.write_text(examples)
+    tl_table = "123456789".maketrans("123456789", "ABCDEFGHI")
+    if expects is not None:
+        print("+ Writing expected data...")
+        expect_file = days_folder / "expect.txt"
+        expect_data = ""
+        for i, expect in enumerate(expects):
+            abc = str(i + 1).translate(tl_table)
+            expect_data += f"PART {abc}: {expect}\n"
+        expect_file.write_text(expect_data)
     print(f"Day {day} prepared successfully.")
+
+    print("\n------------------------")
+    print(txt_day.replace("\n\n", "\n").strip())
 
 
 @main.command(
@@ -243,3 +255,18 @@ def testall_function():
     if any_failure:
         exit(1)
     exit(0)
+
+
+@main.command(name="info", help="Get information about the current day problem")
+@click.argument("day", type=int)
+@click.option("-y", "--year", type=int, default=2022, help="Year to prepare for")
+def info_function(day: int, year: int):
+    session_env = os.environ.get("AOC_SESSION")
+    if session_env is None:
+        print("AOC_SESSION environment variable is not set.")
+        exit(1)
+    _, _, txt_day = get_day_page(day, year, session_env)
+    if txt_day is None:
+        print("Day information not found.")
+        exit(1)
+    print(txt_day.replace("\n\n", "\n").strip())
