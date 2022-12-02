@@ -37,7 +37,6 @@ def part_b(puzzle: str) -> str:
     # Z: Win
 
     # We will throw our hands depending on the opponent's hand
-    # TODO: Make the code better
     games = [s for s in puzzle.splitlines() if s]
     score = 0
     for game in games:
@@ -48,25 +47,11 @@ def part_b(puzzle: str) -> str:
             score += 3 + HANDS[opp]
             continue
 
-        if opp == 0:
-            # Rock
-            if direction == "Z":
-                # Win
-                score += 6 + HANDS[1]
-            else:
-                score += 0 + HANDS[2]
-        elif opp == 1:
-            # Paper
-            if direction == "Z":
-                score += 6 + HANDS[2]
-            else:
-                score += 0 + HANDS[0]
-        else:
-            # Scissors
-            if direction == "Z":
-                score += 6 + HANDS[0]
-            else:
-                score += 0 + HANDS[1]
+        # big brain time
+        add = 1 if direction == "Z" else 2
+        hand = 6 if direction == "Z" else 0
+        hidx = (opp + add) % 3
+        score += hand + HANDS[hidx]
     return str(score)
 
 
