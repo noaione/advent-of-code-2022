@@ -56,7 +56,8 @@ def main(ctx: click.Context):
     help="Run specific day's solution",
 )
 @click.argument("day", type=str, required=False)
-def run_function(day: Optional[str] = None):
+@click.argument("puzzle_path", type=Path, required=False)
+def run_function(day: Optional[str] = None, puzzle_path: Optional[Path] = None):
     """
     Run a specific day's solution.
     """
@@ -103,13 +104,17 @@ def run_function(day: Optional[str] = None):
         print("Day not found.")
         exit(1)
 
+    puzzle_ovr: Optional[str] = None
+    if puzzle_path is not None and puzzle_path.exists() and puzzle_path.is_file():
+        puzzle_ovr = puzzle_path.read_text().strip()
+
     sel_sol = solution[str(day_ii)]
     if part_sel is None:
-        sel_sol()
+        sel_sol(puzzle_ovr)
     elif part_sel == "a":
-        sel_sol.call_a()
+        sel_sol.call_a(puzzle_ovr)
     elif part_sel == "b":
-        sel_sol.call_b()
+        sel_sol.call_b(puzzle_ovr)
 
 
 @main.command(

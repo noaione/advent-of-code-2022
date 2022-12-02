@@ -25,27 +25,27 @@ class Solution:
     def __post_init__(self):
         self.puzzle = self.puzzle.strip()
 
-    def __call__(self):
+    def __call__(self, puzzle_str: Optional[str] = None):
         # Call both parts if they exist
-        self.call_a()
-        self.call_b()
+        self.call_a(puzzle_str=puzzle_str)
+        self.call_b(puzzle_str=puzzle_str)
 
-    def call_a(self, silent: bool = False) -> Optional[str]:
+    def call_a(self, puzzle_str: Optional[str] = None, silent: bool = False) -> Optional[str]:
         if self.part_a:
             if not silent:
                 print("+ Part A")
-            result = self.part_a(self.puzzle)
+            result = self.part_a(puzzle_str or self.puzzle)
             if not silent:
                 print(result)
                 print()
             return result
         return None
 
-    def call_b(self, silent: bool = False) -> Optional[str]:
+    def call_b(self, puzzle_str: Optional[str] = None, silent: bool = False) -> Optional[str]:
         if self.part_b:
             if not silent:
                 print("+ Part B")
-            result = self.part_b(self.puzzle)
+            result = self.part_b(puzzle_str or self.puzzle)
             if not silent:
                 print(result)
                 print()
