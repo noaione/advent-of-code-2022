@@ -1,5 +1,7 @@
 # Advent of Code 2022 Solution
 
+[![CI](https://github.com/noaione/advent-of-code-2022/actions/workflows/ci.yml/badge.svg)](https://github.com/noaione/advent-of-code-2022/actions/workflows/ci.yml)
+
 *I swear I'll finish this year ![:copium:](https://cdn.discordapp.com/emojis/817726084363583508.png?size=24&quality=lossless)*
 
 Currently doing in:
