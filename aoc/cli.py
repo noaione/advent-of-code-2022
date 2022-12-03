@@ -6,6 +6,7 @@ import click
 import requests
 from dotenv import load_dotenv
 
+from .bencher import run_with_timeit
 from .discover import Solution, discover_solution
 from .scrape import get_day_page
 
@@ -253,3 +254,47 @@ def info_function(day: int, year: int):
         print("Day information not found.")
         exit(1)
     print(txt_day.replace("\n\n", "\n").strip())
+
+
+@main.command(name="bench", help="Benchmark a specific day's solution")
+@click.argument("day", type=str, required=False)
+@click.option("-n", "--iter", type=int, default=100_000, help="Number of times to run the benchmark")
+def bench_function(day: Optional[str] = None, iter: int = 100_000):
+    """
+    Benchmark a specific day's solution.
+    """
+    # Discover the solution
+    solution = discover_solution()
+    if not day:
+        list_and_exit(solution)
+
+    sel_sol, part_sel = get_solution_or_exit(solution, day)
+    print(f"+ Benchmarking day {day} ({iter}n)...")
+
+    if part_sel is None:
+        results_timeit = {}
+        if sel_sol.part_a is not None:
+            print("+ Benchmarking part A...")
+            result_t = run_with_timeit(sel_sol.part_a, sel_sol.puzzle, iter=iter)
+            results_timeit["part_a"] = result_t
+        if sel_sol.part_b is not None:
+            print("+ Benchmarking part B...")
+            result_t = run_with_timeit(sel_sol.part_b, sel_sol.puzzle, iter=iter)
+            results_timeit["part_b"] = result_t
+    elif part_sel == "a" and sel_sol.part_a is not None:
+        print("+ Benchmarking part A...")
+        result_t = run_with_timeit(sel_sol.part_a, sel_sol.puzzle, iter=iter)
+        results_timeit["part_a"] = result_t
+    elif part_sel == "b" and sel_sol.part_b is not None:
+        print("+ Benchmarking part B...")
+        result_t = run_with_timeit(sel_sol.part_b, sel_sol.puzzle, iter=iter)
+        results_timeit["part_b"] = result_t
+    else:
+        print(f"Day {day} has no part {part_sel.upper()}.")
+        exit(1)
+
+    print()
+    for func, tt in results_timeit.items():
+        tt_ns = int(round(tt * 1e9))
+        # format number with comma
+        print(f"bench: {func}: {tt_ns:,} ns/iter")
