@@ -54,6 +54,35 @@ def list_and_exit(solutions: dict[str, Solution]) -> NoReturn:
     exit(0)
 
 
+def get_solution_or_exit(solutions: dict[str, Solution], day: str):
+    split_data = day.split(".", 1)
+    if len(split_data) == 2:
+        day_sel, part_sel = split_data
+        if part_sel.lower() not in ["a", "b"]:
+            print("Invalid part selected.")
+            exit(1)
+
+        try:
+            day_ii = int(day_sel)
+        except ValueError:
+            print("Invalid day selected (must be an integer).")
+            exit(1)
+    else:
+        try:
+            day_ii = int(split_data[0])
+        except ValueError:
+            print("Invalid day selected (must be an integer).")
+            exit(1)
+
+        part_sel = None
+    if str(day_ii) not in solutions:
+        print("Day not found.")
+        exit(1)
+
+    sel_sol = solutions[str(day_ii)]
+    return sel_sol, part_sel
+
+
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.version_option(
     "0.1.0",
@@ -85,35 +114,12 @@ def run_function(day: Optional[str] = None, puzzle_path: Optional[Path] = None):
     if not day:
         list_and_exit(solution)
 
-    split_data = day.split(".", 1)
-    if len(split_data) == 2:
-        day_sel, part_sel = split_data
-        if part_sel.lower() not in ["a", "b"]:
-            print("Invalid part selected.")
-            exit(1)
-
-        try:
-            day_ii = int(day_sel)
-        except ValueError:
-            print("Invalid day selected (must be an integer).")
-            exit(1)
-    else:
-        try:
-            day_ii = int(split_data[0])
-        except ValueError:
-            print("Invalid day selected (must be an integer).")
-            exit(1)
-
-        part_sel = None
-    if str(day_ii) not in solution:
-        print("Day not found.")
-        exit(1)
+    sel_sol, part_sel = get_solution_or_exit(solution, day)
 
     puzzle_ovr: Optional[str] = None
     if puzzle_path is not None and puzzle_path.exists() and puzzle_path.is_file():
         puzzle_ovr = puzzle_path.read_text().strip()
 
-    sel_sol = solution[str(day_ii)]
     if part_sel is None:
         sel_sol(puzzle_ovr)
     elif part_sel == "a":
@@ -136,31 +142,8 @@ def test_function(day: Optional[str] = None):
     if not day:
         list_and_exit(solution)
 
-    split_data = day.split(".", 1)
-    if len(split_data) == 2:
-        day_sel, part_sel = split_data
-        if part_sel.lower() not in ["a", "b"]:
-            print("Invalid part selected.")
-            exit(1)
+    sel_sol, part_sel = get_solution_or_exit(solution, day)
 
-        try:
-            day_ii = int(day_sel)
-        except ValueError:
-            print("Invalid day selected (must be an integer).")
-            exit(1)
-    else:
-        try:
-            day_ii = int(split_data[0])
-        except ValueError:
-            print("Invalid day selected (must be an integer).")
-            exit(1)
-
-        part_sel = None
-    if str(day_ii) not in solution:
-        print("Day not found.")
-        exit(1)
-
-    sel_sol = solution[str(day_ii)]
     if part_sel is None:
         res = sel_sol.test()
         if not all(res):
