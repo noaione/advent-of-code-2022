@@ -14,10 +14,8 @@ table = "abcxyz".maketrans("abcxyz", "012012")
 
 
 def get_score(opponent: str, my_hand: str):
-    opp = int(opponent.lower().translate(table))
-    myh = int(my_hand.lower().translate(table))
     # (R)ock (P)aper (S)cissors
-    if myh == opp:
+    if (myh := int(my_hand.lower().translate(table))) == (opp := int(opponent.lower().translate(table))):
         return 3 + HANDS[myh]
     # Won condition
     if myh == (opp + 1) % 3:
@@ -31,27 +29,17 @@ def part_a(puzzle: str) -> str:
 
 
 def part_b(puzzle: str) -> str:
-    # In this version, the second part is what we should do
-    # X: Lose
-    # Y: Draw
-    # Z: Win
-
     # We will throw our hands depending on the opponent's hand
-    games = [s for s in puzzle.splitlines() if s]
+    games = [(int(s[0].lower().translate(table)), int(s[2].lower().translate(table))) for s in puzzle.splitlines() if s]
     score = 0
-    for game in games:
-        opp = int(game[0].lower().translate(table))
-        direction = game[2]
-        if direction == "Y":
-            # Make it draw
+    for opp, own in games:
+        if own == 1:
             score += 3 + HANDS[opp]
             continue
 
-        # big brain time
-        add = 1 if direction == "Z" else 2
-        hand = 6 if direction == "Z" else 0
-        hidx = (opp + add) % 3
-        score += hand + HANDS[hidx]
+        own_s = 6 if own == 2 else 0
+        hidx = (opp + (1 if own == 2 else 2)) % 3
+        score += own_s + HANDS[hidx]
     return str(score)
 
 
