@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 from typing import NoReturn, Optional
 
@@ -41,7 +42,7 @@ def list_and_exit(solutions: dict[str, Solution]) -> NoReturn:
     print("++ Available solutions:")
     if not solutions:
         print("No solutions found.")
-        exit(0)
+        sys.exit(0)
     for day_str, sol in solutions.items():
         day_i = int(day_str)
         print(f"- {day_i:02d}", end="")
@@ -52,7 +53,7 @@ def list_and_exit(solutions: dict[str, Solution]) -> NoReturn:
         print()
     print("\nJust do: `aoc run 01` to run all solutions for day 1.")
     print("Or: `aoc run 01.a` to run only part a for day 1 as an example.")
-    exit(0)
+    sys.exit(0)
 
 
 def get_solution_or_exit(solutions: dict[str, Solution], day: str):
@@ -61,24 +62,24 @@ def get_solution_or_exit(solutions: dict[str, Solution], day: str):
         day_sel, part_sel = split_data
         if part_sel.lower() not in ["a", "b"]:
             print("Invalid part selected.")
-            exit(1)
+            sys.exit(1)
 
         try:
             day_ii = int(day_sel)
         except ValueError:
             print("Invalid day selected (must be an integer).")
-            exit(1)
+            sys.exit(1)
     else:
         try:
             day_ii = int(split_data[0])
         except ValueError:
             print("Invalid day selected (must be an integer).")
-            exit(1)
+            sys.exit(1)
 
         part_sel = None
     if str(day_ii) not in solutions:
         print("Day not found.")
-        exit(1)
+        sys.exit(1)
 
     sel_sol = solutions[str(day_ii)]
     return sel_sol, part_sel, day_ii
@@ -148,16 +149,16 @@ def test_function(day: Optional[str] = None):
     if part_sel is None:
         res = sel_sol.test()
         if not all(res):
-            exit(1)
+            sys.exit(1)
     elif part_sel == "a":
         res, _ = sel_sol.test(run_b=False)
         if not res:
-            exit(1)
+            sys.exit(1)
     elif part_sel == "b":
         _, res = sel_sol.test(run_a=False)
         if not res:
-            exit(1)
-    exit(0)
+            sys.exit(1)
+    sys.exit(0)
 
 
 @main.command(
@@ -174,13 +175,13 @@ def prepare_function(day: int, year: int, force: bool):
     session_env = os.environ.get("AOC_SESSION")
     if session_env is None:
         print("AOC_SESSION environment variable is not set.")
-        exit(1)
+        sys.exit(1)
 
     print(f"+ Preparing day {day}...")
     days_folder = ROOT_DIR / "days" / f"day{day:02d}"
     if days_folder.exists() and not force:
         print(f"Day {day} already exists. Use --force to overwrite.")
-        exit(1)
+        sys.exit(1)
 
     days_folder.mkdir(parents=True, exist_ok=True)
     solution_file = days_folder / "solution.py"
@@ -191,7 +192,7 @@ def prepare_function(day: int, year: int, force: bool):
     examples, expects, txt_day = get_day_page(day, year, session_env)
     if txt_day is None:
         print("Day information not found.")
-        exit(1)
+        sys.exit(1)
     print(f"+ Downloading puzzle data for day {day}...")
     r = requests.get(f"https://adventofcode.com/{year}/day/{day}/input", cookies={"session": session_env})
     puzzle_file = days_folder / "input.txt"
@@ -228,7 +229,7 @@ def testall_function():
     solution = discover_solution()
     if not solution:
         print("No solutions found.")
-        exit(0)
+        sys.exit(0)
 
     any_failure = False
     for day, sel_sol in solution.items():
@@ -237,8 +238,8 @@ def testall_function():
         if not all(res):
             any_failure = True
     if any_failure:
-        exit(1)
-    exit(0)
+        sys.exit(1)
+    sys.exit(0)
 
 
 @main.command(name="info", help="Get information about the current day problem")
@@ -248,11 +249,11 @@ def info_function(day: int, year: int):
     session_env = os.environ.get("AOC_SESSION")
     if session_env is None:
         print("AOC_SESSION environment variable is not set.")
-        exit(1)
+        sys.exit(1)
     _, _, txt_day = get_day_page(day, year, session_env)
     if txt_day is None:
         print("Day information not found.")
-        exit(1)
+        sys.exit(1)
     print(txt_day.replace("\n\n", "\n").strip())
 
 
@@ -284,14 +285,14 @@ def bench_function(day: Optional[str] = None, iter: int = 100_000):
     elif part_sel == "a" and sel_sol.part_a is not None:
         print("+ Benchmarking part A...")
         result_t = run_with_timeit(sel_sol.part_a, sel_sol.puzzle, iter=iter)
-        results_timeit["part_a"] = result_t
+        results_timeit = {"part_a": result_t}
     elif part_sel == "b" and sel_sol.part_b is not None:
         print("+ Benchmarking part B...")
         result_t = run_with_timeit(sel_sol.part_b, sel_sol.puzzle, iter=iter)
-        results_timeit["part_b"] = result_t
+        results_timeit = {"part_b": result_t}
     else:
         print(f"Day {day} has no part {part_sel.upper()}.")
-        exit(1)
+        sys.exit(1)
 
     # save bench results
     old_bench = read_bench()
