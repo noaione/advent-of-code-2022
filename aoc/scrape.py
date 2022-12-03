@@ -1,8 +1,9 @@
 # AoC website scrapper
 
 from typing import Optional, cast
-from bs4 import BeautifulSoup, Tag
+
 import requests
+from bs4 import BeautifulSoup, Tag
 from markdownify import markdownify as md
 
 
