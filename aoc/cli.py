@@ -6,7 +6,7 @@ import click
 import requests
 from dotenv import load_dotenv
 
-from .bencher import run_with_timeit
+from .bencher import read_bench, run_with_timeit, update_bench
 from .discover import Solution, discover_solution
 from .scrape import get_day_page
 
@@ -81,7 +81,7 @@ def get_solution_or_exit(solutions: dict[str, Solution], day: str):
         exit(1)
 
     sel_sol = solutions[str(day_ii)]
-    return sel_sol, part_sel
+    return sel_sol, part_sel, day_ii
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
@@ -115,7 +115,7 @@ def run_function(day: Optional[str] = None, puzzle_path: Optional[Path] = None):
     if not day:
         list_and_exit(solution)
 
-    sel_sol, part_sel = get_solution_or_exit(solution, day)
+    sel_sol, part_sel, _ = get_solution_or_exit(solution, day)
 
     puzzle_ovr: Optional[str] = None
     if puzzle_path is not None and puzzle_path.exists() and puzzle_path.is_file():
@@ -143,7 +143,7 @@ def test_function(day: Optional[str] = None):
     if not day:
         list_and_exit(solution)
 
-    sel_sol, part_sel = get_solution_or_exit(solution, day)
+    sel_sol, part_sel, _ = get_solution_or_exit(solution, day)
 
     if part_sel is None:
         res = sel_sol.test()
@@ -268,7 +268,7 @@ def bench_function(day: Optional[str] = None, iter: int = 100_000):
     if not day:
         list_and_exit(solution)
 
-    sel_sol, part_sel = get_solution_or_exit(solution, day)
+    sel_sol, part_sel, day_ii = get_solution_or_exit(solution, day)
     print(f"+ Benchmarking day {day} ({iter}n)...")
 
     if part_sel is None:
@@ -293,8 +293,26 @@ def bench_function(day: Optional[str] = None, iter: int = 100_000):
         print(f"Day {day} has no part {part_sel.upper()}.")
         exit(1)
 
+    # save bench results
+    old_bench = read_bench()
+    day_data = old_bench.get(f"{day_ii:02d}", {})
+    part_a_d = day_data.get("part_a", 0)
+    part_b_d = day_data.get("part_b", 0)
+
     print()
     for func, tt in results_timeit.items():
         tt_ns = int(round(tt * 1e9))
+        update_bench(f"{day_ii:02d}", func, tt_ns)
         # format number with comma
-        print(f"bench: {func}: {tt_ns:,} ns/iter")
+        print(f"bench: {func}: {tt_ns:,} ns/iter", end="")
+        # compare with previous bench
+        comp = 0
+        if func == "part_a":
+            comp = tt_ns - part_a_d
+        elif func == "part_b":
+            comp = tt_ns - part_b_d
+            # the bigger the number, the worse
+        if comp != 0:
+            print(f" (+/- {abs(comp):,})")
+        else:
+            print()
