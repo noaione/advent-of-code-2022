@@ -294,6 +294,12 @@ def bench_function(day: Optional[str] = None, iter: int = 100_000):
         print(f"Day {day} has no part {part_sel.upper()}.")
         sys.exit(1)
 
+    parser_overhead = 0
+    if sel_sol.parser is not None:
+        print("+ Benchmarking parser...")
+        parser_overhead = run_with_timeit(sel_sol.parser, sel_sol.puzzle, iter=iter)
+        results_timeit["parse"] = parser_overhead
+
     # save bench results
     old_bench = read_bench()
     day_data = old_bench.get(f"{day_ii:02d}", {})
@@ -303,6 +309,8 @@ def bench_function(day: Optional[str] = None, iter: int = 100_000):
     print()
     for func, tt in results_timeit.items():
         tt_ns = int(round(tt * 1e9))
+        if func != "parse":
+            tt_ns -= int(round(parser_overhead * 1e9))
         update_bench(f"{day_ii:02d}", func, tt_ns)
         # format number with comma
         print(f"bench: {func}: {tt_ns:,} ns/iter", end="")

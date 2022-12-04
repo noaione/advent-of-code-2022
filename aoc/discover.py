@@ -18,6 +18,7 @@ class TestCase:
 class Solution:
     part_a: Optional[Callable[[str], str]] = None
     part_b: Optional[Callable[[str], str]] = None
+    parser: Optional[Callable[[str], str]] = None
     puzzle: str = field(repr=False, default="")
     test_a: Optional[TestCase] = None
     test_b: Optional[TestCase] = None
@@ -108,6 +109,7 @@ def discover_solution():
             # Find the solution function (part_a, part_b, parta, partb)
             part_a = getattr(module, "part_a", getattr(module, "parta", None))
             part_b = getattr(module, "part_b", getattr(module, "partb", None))
+            parser = getattr(module, "parser", getattr(module, "parse", None))
             if part_a is None and part_b is None:
                 continue
             solution = Solution()
@@ -115,6 +117,8 @@ def discover_solution():
                 solution.part_a = part_a
             if callable(part_b):
                 solution.part_b = part_b
+            if callable(parser):
+                solution.parser = parser
             examples = day / "example.txt"
             example_data: Optional[str] = None
             if examples.exists():
