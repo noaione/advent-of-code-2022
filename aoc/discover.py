@@ -143,4 +143,8 @@ def discover_solution():
             solution.puzzle = puzzle_data.read_text()
             day_parts = int(day.name.replace("day", ""))
             solutions[str(day_parts)] = solution
-    return solutions
+    # sort by keys
+    new_solutions: dict[str, Solution] = {}
+    for key in sorted(solutions.keys()):
+        new_solutions[key] = solutions[key]
+    return new_solutions
