@@ -38,21 +38,21 @@ if __name__ == "__main__":
 """
 
 
-def list_and_exit(solutions: dict[str, Solution]) -> NoReturn:
+def list_and_exit(solutions: dict[str, Solution], command: str = "run") -> NoReturn:
     print("++ Available solutions:")
     if not solutions:
         print("No solutions found.")
         sys.exit(0)
     for day_str, sol in solutions.items():
         day_i = int(day_str)
-        print(f"- {day_i:02d}", end="")
+        print(f"- {day_i:02d}, {day_i:02d}", end="")
         if sol.part_a:
             print(".a", end="")
         if sol.part_b:
             print(f", {day_i:02d}.b", end="")
         print()
-    print("\nJust do: `aoc run 01` to run all solutions for day 1.")
-    print("Or: `aoc run 01.a` to run only part a for day 1 as an example.")
+    print(f"\nJust do: `aoc {command} 01` to {command} all solutions for day 1.")
+    print(f"Or: `aoc {command} 01.a` to {command} only part a for day 1 as an example.")
     sys.exit(0)
 
 
@@ -142,7 +142,7 @@ def test_function(day: Optional[str] = None):
     # Discover the solution
     solution = discover_solution()
     if not day:
-        list_and_exit(solution)
+        list_and_exit(solution, "test")
 
     sel_sol, part_sel, _ = get_solution_or_exit(solution, day)
 
@@ -267,7 +267,7 @@ def bench_function(day: Optional[str] = None, iter: int = 100_000):
     # Discover the solution
     solution = discover_solution()
     if not day:
-        list_and_exit(solution)
+        list_and_exit(solution, "bench")
 
     sel_sol, part_sel, day_ii = get_solution_or_exit(solution, day)
     print(f"+ Benchmarking day {day} ({iter}n)...")
