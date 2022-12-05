@@ -23,9 +23,6 @@ class Solution:
     test_a: Optional[TestCase] = None
     test_b: Optional[TestCase] = None
 
-    def __post_init__(self):
-        self.puzzle = self.puzzle.strip()
-
     def __call__(self, puzzle_str: Optional[str] = None):
         # Call both parts if they exist
         self.call_a(puzzle_str=puzzle_str)
@@ -128,7 +125,6 @@ def discover_solution():
             if expects.exists():
                 expect_data = expects.read_text()
             if example_data and expect_data:
-                example_data = example_data.strip()
                 part_a_expect: Optional[str] = None
                 part_b_expect: Optional[str] = None
                 for exp in expect_data.strip().splitlines():
