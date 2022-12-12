@@ -86,7 +86,6 @@ class Solution:
 def _find_test_ignore(text: str) -> bool:
     if not text:
         return False
-    print(text)
     cleft = text.lstrip()
     if cleft.startswith("# "):
         return "ignore: test" in text.lower()
