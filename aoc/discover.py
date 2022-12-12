@@ -57,8 +57,10 @@ class Solution:
         if self.test_a and self.part_a and run_a:
             if not self.test_a.expect:
                 print("- Part A: No expected result, skipping")
+                passed[0] = True
             elif self.test_a.is_skip:
                 print("- Part A: Test ignored, skipping!")
+                passed[0] = True
             else:
                 res = self.part_a(self.test_a.example)
                 if res != self.test_a.expect:
@@ -70,8 +72,10 @@ class Solution:
         if self.test_b and self.part_b and run_b:
             if not self.test_b.expect:
                 print("- Part B: No expected result, skipping")
+                passed[1] = True
             elif self.test_b.is_skip:
                 print("- Part B: Test ignored, skipping!")
+                passed[1] = True
             else:
                 res = self.part_b(self.test_b.example)
                 if res != self.test_b.expect:
