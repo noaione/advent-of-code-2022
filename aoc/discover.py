@@ -86,11 +86,12 @@ class Solution:
 def _find_test_ignore(text: str) -> bool:
     if not text:
         return False
-    cleft = text.lstrip()
-    if cleft.startswith("# "):
-        return "ignore: test" in text.lower()
-    if cleft.startswith('"""') or cleft.startswith("'''"):
-        return "ignore: test" in text.lower()
+    for line in text.splitlines():
+        cleft = line.lstrip()
+        if cleft.startswith("# "):
+            return "ignore: test" in cleft.lower()
+        if cleft.startswith('"""') or cleft.startswith("'''"):
+            return "ignore: test" in cleft.lower()
     return False
 
 
