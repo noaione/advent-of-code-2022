@@ -87,7 +87,7 @@ def get_solution_or_exit(solutions: dict[str, Solution], day: str):
 
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.version_option(
-    "0.1.0",
+    "0.1.1",
     "--version",
     "-V",
     prog_name="aoc",
