@@ -259,8 +259,8 @@ def info_function(day: int, year: int):
 
 @main.command(name="bench", help="Benchmark a specific day's solution")
 @click.argument("day", type=str, required=False)
-@click.option("-n", "--iter", type=int, default=100_000, help="Number of times to run the benchmark")
-def bench_function(day: Optional[str] = None, iter: int = 100_000):
+@click.option("-n", "--iter", type=int, default=1, help="Number of times to run the benchmark")
+def bench_function(day: Optional[str] = None, iter: int = 1):
     """
     Benchmark a specific day's solution.
     """
