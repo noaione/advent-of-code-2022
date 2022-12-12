@@ -1,7 +1,8 @@
+# ignore: test
+import pprint
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
-import pprint
 
 CURRENT_DIR = Path(__file__).absolute().parent
 
